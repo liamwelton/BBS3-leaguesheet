@@ -1,7 +1,7 @@
 # Blood Bowl League Sheet (Season 3)
 A Google Sheet to help you manage your [Blood Bowl](https://www.warhammer.com/en-GB/blood-bowl-lp) League using Season 3 Ruleset.
 
-It does not contain the rules contained within supplementary materials such as Deathzone, though new teams and rule changes published in Spike and other official resources will be added over time.
+It does not include any teams, star players, or other mechanics from supplementary materials such as Deathzone, though new teams and rule changes published in Spike and other official resources will be added over time.
 
 #### Notice
 This sheet and associated documents do not contain the rules to Blood Bowl. You must purchase the rulebook in order to play this game. This sheet is designed to support the running of leagues.
