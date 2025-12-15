@@ -14,7 +14,7 @@ This sheet and associated documents do not contain the rules to Blood Bowl. You 
 
 From this point onward you can start using the sheet. Further steps can be taken to set up the supporting Google Form to make adding Teams to the league earlier.
 
-For details on this and how to use the sheet. please refer to the documentation.
+For details on this and how to use the sheet. please [refer to the documentation](https://github.com/liamwelton/BBS3-leaguesheet/wiki).
 
 ## Documentation
 Full documentation [can be found here](https://github.com/liamwelton/BBS3-leaguesheet/wiki).
