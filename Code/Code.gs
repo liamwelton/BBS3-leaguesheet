@@ -31,6 +31,12 @@ function AddTeam(data) {
   var teamsheetTemplate = ss.getSheetByName('🤼 Team Roster Template');
   var newTeamSheet = teamsheetTemplate.copyTo(ss);
 
+  // Hide it on creation, as it will not inherit the hidden status from the template
+  newTeamSheet.hideSheet();
+
+  // Protections (annoyingly) don't get duplicated along with a sheet so you have to manually copy them over
+  copyProtections(teamsheetTemplate, newTeamSheet);
+
   // Assign the new team to the Roster sheet and unhide it
   newTeamSheet.setName('🤼 '+ teamName);
   newTeamSheet.getRange('B2').setValue(teamName);
@@ -45,4 +51,24 @@ function getFirstEmptyRowByColumnArray(column) {
     ct++;
   }
   return (ct+1);
+}
+
+// Copies the range protections from one sheet to another
+function copyProtections(templateSheet, targetSheet) {
+  const templateProtections = templateSheet.getProtections(SpreadsheetApp.ProtectionType.RANGE);
+  
+  templateProtections.forEach(p => {
+    const rangeNotation = p.getRange().getA1Notation();
+    const newProtection = targetSheet.getRange(rangeNotation).protect();
+    
+    // Copy description and warning-only status
+    newProtection.setDescription(p.getDescription());
+    newProtection.setWarningOnly(p.isWarningOnly());
+    
+    // Copy editors if it's not a warning-only protection
+    if (!p.isWarningOnly()) {
+      newProtection.removeEditors(newProtection.getEditors());
+      newProtection.addEditors(p.getEditors());
+    }
+  });
 }
