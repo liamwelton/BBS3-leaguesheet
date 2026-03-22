@@ -1,32 +1,122 @@
-// Called whenever the attached form is submitted
-function SubmitForm(e) {
-  AddTeam(e.namedValues);  
+function onOpen(e) {
+  //checkSheetNamesAreCorrect();
+}
+
+function onEdit(e) {
+  var teamListName = "🤼 Team List";
+  var addRemoveCol = 9;
+  var sheet = e.range.getSheet();
+  var col = e.range.columnStart;
+  var row = e.range.rowStart;
+
+  if(row <2) {
+    return;
+  }
+
+  if(sheet.getSheetName() == teamListName && col == addRemoveCol) {
+    switch(e.value) {
+      case "➕ Add Team":
+      AddTeam(row);
+      break;
+      case "🔗 Reconnect Sheet":
+      ReconnectSheet(row);
+      break;
+      case "❌ Delete Team":
+      RemoveTeam(row);
+      break;
+      default:
+      break;
+    }
+    e.range.setValue("✏️ Menu");
+  }
+}
+
+function ReconnectSheet(row) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet(); 
+  var teamlistSheet = ss.getSheetByName('🤼 Team List');
+  
+  teamlistSheet.getRange("L" + row).setValue("pending");
+  teamlistSheet.getRange("I" + row).setValue("⌛ Pending");
+
+  var id = teamlistSheet.getRange('K' + row).getValue();
+
+  if(id !== "") {    
+      var reqName = ss.getSheetById(id).getName();
+      var nameCell = teamlistSheet.getRange('J' + row);
+      if(nameCell.getValue() !== reqName) {
+        nameCell.setValue(reqName);
+      }
+
+      teamlistSheet.getRange("L" + row).setValue("active");       
+    }
+}
+
+function AddTeam(row) {
+  var ui = SpreadsheetApp.getUi(); 
+
+  var result = ui.prompt(
+    'Add New Team',
+     'Enter your Team name',
+    ui.ButtonSet.OK_CANCEL,
+  );
+
+  // Process the user's response.
+  var button = result.getSelectedButton();
+  if (button !== ui.Button.OK) {
+    return;
+  } 
+
+  var teamName = result.getResponseText();
+  
+  var ss = SpreadsheetApp.getActiveSpreadsheet(); 
+  var teamlistSheet = ss.getSheetByName('🤼 Team List');
+
+  teamlistSheet.getRange("L" + row).setValue("pending");
+  teamlistSheet.getRange("I" + row).setValue("⌛ Pending");
+
+  var sheetId = AddTeamRoster(teamName);
+  teamlistSheet.getRange("K" + row).setValue(sheetId);
+  teamlistSheet.getRange("J" + row).setValue("🤼 " + teamName);
+  teamlistSheet.getRange("L" + row).setValue("active");
+}
+
+function RemoveTeam(row) {
+  
+  var ui = SpreadsheetApp.getUi(); 
+
+  var result = ui.prompt(
+    "Are you sure you want to delete this team?",
+    "Type DELETE below to confirm",
+    ui.ButtonSet.OK_CANCEL,
+  );
+
+  // Process the user's response.
+  var button = result.getSelectedButton();
+  var text = result.getResponseText();
+  if (button !== ui.Button.OK || text !== "DELETE") {
+    return;
+  } 
+  
+  var ss = SpreadsheetApp.getActiveSpreadsheet(); 
+  var teamlistSheet = ss.getSheetByName('🤼 Team List');
+
+  teamlistSheet.getRange("L" + row).setValue("pending");
+  teamlistSheet.getRange("I" + row).setValue("⌛ Pending");
+
+  var sheetName = teamlistSheet.getRange("J" + row).getValue();
+  var teamSheet = ss.getSheetByName(sheetName);
+
+  ss.deleteSheet(teamSheet);
+  teamlistSheet.getRange("J" + row).clearContent();
+  teamlistSheet.getRange("K" + row).clearContent();
+  teamlistSheet.getRange("L" + row).setValue("inactive");
 }
 
 // Adds the team to the correct locations on the spreadsheet
 // Note: does not clear the Form Response sheet so there is a record of submissions
-function AddTeam(data) {
+function AddTeamRoster(teamName) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   
-  // Collect and format form responses
-  var teamName = data['Team Name'];
-  var coachName = data['Coach Name'];
-  var teamType = data['Team'];
-  var league = data['League'];
-  var redrafted = data['Has this team been redrafted?'] == 'Yes' ? "TRUE" : "FALSE";
-
-
-  // Get the first empty row in the Team List sheet
-  var teamlistSheet = ss.getSheetByName('🤼 Team List');
-  var nextEmptyRow = getFirstEmptyRowByColumnArray(teamlistSheet.getRange('A:A'));
-
-  // Add the responses to the Team Sheet
-  teamlistSheet.getRange('A' + nextEmptyRow).setValue(teamName);
-  teamlistSheet.getRange('B' + nextEmptyRow).setValue(teamType);
-  teamlistSheet.getRange('C' + nextEmptyRow).setValue(coachName);
-  teamlistSheet.getRange('D' + nextEmptyRow).setValue(league);
-  teamlistSheet.getRange('E' + nextEmptyRow).setValue(redrafted);
-
   // Duplicate the Roster sheet
   var teamsheetTemplate = ss.getSheetByName('🤼 Team Roster Template');
   var newTeamSheet = teamsheetTemplate.copyTo(ss);
@@ -34,13 +124,12 @@ function AddTeam(data) {
   // Hide it on creation, as it will not inherit the hidden status from the template
   newTeamSheet.hideSheet();
 
-  // Protections (annoyingly) don't get duplicated along with a sheet so you have to manually copy them over
-  copyProtections(teamsheetTemplate, newTeamSheet);
-
   // Assign the new team to the Roster sheet and unhide it
-  newTeamSheet.setName('🤼 '+ teamName);
-  newTeamSheet.getRange('B2').setValue(teamName);
+  newTeamSheet.setName("🤼 " + teamName);
+  newTeamSheet.getRange('A2').setValue(teamName);
   newTeamSheet.showSheet();
+
+  return newTeamSheet.getSheetId();
 }
 
 // Finds the first empty row within a sheet
@@ -53,22 +142,10 @@ function getFirstEmptyRowByColumnArray(column) {
   return (ct+1);
 }
 
-// Copies the range protections from one sheet to another
-function copyProtections(templateSheet, targetSheet) {
-  const templateProtections = templateSheet.getProtections(SpreadsheetApp.ProtectionType.RANGE);
-  
-  templateProtections.forEach(p => {
-    const rangeNotation = p.getRange().getA1Notation();
-    const newProtection = targetSheet.getRange(rangeNotation).protect();
-    
-    // Copy description and warning-only status
-    newProtection.setDescription(p.getDescription());
-    newProtection.setWarningOnly(p.isWarningOnly());
-    
-    // Copy editors if it's not a warning-only protection
-    if (!p.isWarningOnly()) {
-      newProtection.removeEditors(newProtection.getEditors());
-      newProtection.addEditors(p.getEditors());
-    }
-  });
+// Gets the the name of a sheet based on it's ID
+function getSheetNameById(sheetId) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetById(sheetId);
+
+  return sheet.getName();
 }
