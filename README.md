@@ -6,15 +6,21 @@ It does not include any teams, star players, or other mechanics from supplementa
 #### Notice
 This sheet and associated documents do not contain the rules to Blood Bowl. You must purchase the rulebook in order to play this game. This sheet is designed to support the running of leagues.
 
+## Features
+* Add and manage Teams for your Blood Bowl League
+* Set up Match Fixtures
+* Fully working Treasury with earnings updated based on Match results.
+* Ability to recruit Mercenaries
+* Ability to use Sponsors
+* Full Deathzone (2021) rules available
+
 
 ## Quickstart
-1. Open the [Google Sheet document](https://docs.google.com/spreadsheets/d/1bTZXUzhivsFwam5YYH20NaRYJH4Aa6mL9wcRlrsjs0c/edit?usp=sharing)
+1. Open the [Google Sheet document](https://docs.google.com/spreadsheets/d/1SHg-AitDvNCmJBRhhUl1nZzddzzlgFo2rdai5c6NngI/edit?usp=sharing)
 2. Go to File > Make a copy
 3. Follow the instructions to copy the sheet, form, and scripts to a location on your GDrive.
 
-From this point onward you can start using the sheet. Further steps can be taken to set up the supporting Google Form to make adding Teams to the league earlier.
-
-For details on this and how to use the sheet. please [refer to the documentation](https://github.com/liamwelton/BBS3-leaguesheet/wiki).
+From this point onward you can start using the sheet. For details on this and how to use the sheet. please [refer to the documentation](https://github.com/liamwelton/BBS3-leaguesheet/wiki).
 
 ## Documentation
 Full documentation [can be found here](https://github.com/liamwelton/BBS3-leaguesheet/wiki).
